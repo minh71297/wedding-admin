@@ -450,7 +450,7 @@
       const f = new FormData(e.target), msg = $("#loginMsg");
       msg.textContent = "";
       const { error } = await sb.auth.signInWithPassword({ email: f.get("email"), password: f.get("password") });
-      if (error) { msg.textContent = "Email hoặc mật khẩu chưa đúng."; return; }
+      if (error) { msg.textContent = "Lỗi: " + error.message; console.error(error); return; }
       startApp();
     };
     const { data: s } = await sb.auth.getSession();
