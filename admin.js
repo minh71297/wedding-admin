@@ -60,18 +60,22 @@
         { k: "thanks", label: "Lời cảm ơn cuối trang", t: "textarea" },
       ]},
     ], tool: "guestLinks" },
-    { id: "couple", title: "Cô dâu & chú rể", desc: "Ảnh, giới thiệu, gia đình và số điện thoại liên hệ.", fields: [
+    { id: "couple", title: "Cô dâu & chú rể", desc: "Ảnh, giới thiệu, gia đình. Số điện thoại, Zalo, Facebook hiện ở mục Liên hệ cuối thiệp.", fields: [
       { group: "Chú rể", fields: [
         { k: "groom.fullName", label: "Họ tên đầy đủ" }, img("groom.photo", "Ảnh chú rể", "Ảnh vuông sẽ đẹp nhất"),
         { k: "groom.bio", label: "Giới thiệu ngắn", t: "textarea" },
         { k: "groom.father", label: "Bố" }, { k: "groom.mother", label: "Mẹ" },
-        { k: "groom.address", label: "Địa chỉ nhà trai" }, { k: "groom.phone", label: "Số điện thoại liên hệ", t: "tel" },
+        { k: "groom.address", label: "Địa chỉ nhà trai" }, { k: "groom.phone", label: "Số điện thoại", t: "tel" },
+        { k: "groom.zalo", label: "Zalo", hint: "Số điện thoại Zalo hoặc link zalo.me/... Bỏ trống để ẩn nút" },
+        { k: "groom.facebook", label: "Link Facebook", hint: "Ví dụ: https://facebook.com/ten.cua.ban" },
       ]},
       { group: "Cô dâu", fields: [
         { k: "bride.fullName", label: "Họ tên đầy đủ" }, img("bride.photo", "Ảnh cô dâu", "Ảnh vuông sẽ đẹp nhất"),
         { k: "bride.bio", label: "Giới thiệu ngắn", t: "textarea" },
         { k: "bride.father", label: "Bố" }, { k: "bride.mother", label: "Mẹ" },
-        { k: "bride.address", label: "Địa chỉ nhà gái" }, { k: "bride.phone", label: "Số điện thoại liên hệ", t: "tel" },
+        { k: "bride.address", label: "Địa chỉ nhà gái" }, { k: "bride.phone", label: "Số điện thoại", t: "tel" },
+        { k: "bride.zalo", label: "Zalo", hint: "Số điện thoại Zalo hoặc link zalo.me/... Bỏ trống để ẩn nút" },
+        { k: "bride.facebook", label: "Link Facebook", hint: "Ví dụ: https://facebook.com/ten.cua.ban" },
       ]},
     ]},
     { id: "events", title: "Tiệc & địa điểm", desc: "Các buổi lễ, bản đồ, lịch trình và trang phục gợi ý.", fields: [
@@ -99,17 +103,39 @@
       ]},
     ]},
     { id: "gallery", title: "Album ảnh", desc: "Tải nhiều ảnh cùng lúc, thêm chú thích và sắp xếp thứ tự.", custom: renderGallery },
-    { id: "decor", title: "Sticker & nhạc", desc: "Tải sticker Dudu Bubu của bạn (nên là PNG nền trong suốt hoặc GIF) và nhạc nền.", fields: [
-      { group: "Sticker trang trí", fields: [
-        img("decor.coverSticker", "Sticker trên bìa thiệp"),
-        img("decor.heroSticker", "Sticker góc ảnh bìa"),
-        img("decor.dividerSticker", "Sticker giữa trang"),
-        img("decor.rsvpSticker", "Sticker ở form xác nhận"),
-        img("decor.footerSticker", "Sticker cuối trang"),
+    { id: "decor", title: "Sticker & nhạc", desc: "Tải sticker Dudu Bubu cho từng vị trí. Bỏ trống vị trí nào thì vị trí đó không hiện sticker.", fields: [
+      { group: "Chữ Hỉ 囍", fields: [
+        { k: "decor.showHi", label: "Hiện chữ Hỉ trang trí khắp thiệp", t: "checkbox" },
+      ]},
+      { group: "Sticker phần đầu thiệp", fields: [
+        img("decor.coverSticker", "Bìa thiệp (trước khi bấm Mở thiệp)"),
+        img("decor.heroSticker", "Giữa ảnh bìa lớn"),
+        img("decor.floatSticker", "Sticker nổi góc màn hình", "Luôn hiện ở góc trái dưới, nhún nhảy nhẹ"),
+      ]},
+      { group: "Sticker cô dâu chú rể", fields: [
+        img("decor.inviteSticker", "Trên lời mời"),
+        img("decor.groomSticker", "Góc ảnh chú rể"),
+        img("decor.brideSticker", "Góc ảnh cô dâu"),
+      ]},
+      { group: "Sticker các mục giữa thiệp", fields: [
+        img("decor.countdownSticker", "Mục đếm ngược"),
+        img("decor.eventsSticker", "Mục tiệc cưới & địa điểm"),
+        img("decor.scheduleSticker", "Mục lịch trình"),
+        img("decor.dividerSticker", "Giữa trang (trước câu chuyện)"),
+        img("decor.storySticker", "Mục câu chuyện"),
+        img("decor.albumSticker", "Mục album ảnh"),
+      ]},
+      { group: "Sticker phần cuối thiệp", fields: [
+        img("decor.rsvpSticker", "Form xác nhận tham dự"),
+        img("decor.wishesSticker", "Sổ lưu bút"),
+        img("decor.giftSticker", "Hộp mừng cưới"),
+        img("decor.contactSticker", "Mục liên hệ"),
+        img("decor.footerSticker", "Cuối trang"),
       ]},
       { group: "Nhạc nền", fields: [
-        { k: "music.url", label: "File nhạc (mp3)", t: "audio", hint: "Nhạc sẽ phát khi khách bấm Mở thiệp" },
+        { k: "music.url", label: "File nhạc (mp3)", t: "audio", hint: "Nên dưới 3 MB. Khách luôn có nút Bật/Tắt nhạc ở góc phải" },
         { k: "music.title", label: "Tên bài hát" },
+        { k: "music.autoplay", label: "Tự phát nhạc khi khách bấm Mở thiệp", t: "checkbox" },
       ]},
     ]},
     { id: "gift", title: "Mừng cưới", desc: "Mã QR và số tài khoản để khách gửi quà mừng.", fields: [
@@ -140,23 +166,24 @@
   window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 
   // ---------- Tải tệp lên ----------
-  async function shrink(file) {
+  async function shrink(file, max = 2000) {
     if (!/^image\/(jpeg|webp)$/.test(file.type) || !window.createImageBitmap) return file;
     try {
       const bmp = await createImageBitmap(file);
-      const max = 2000, scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
-      if (scale === 1 && file.size < 1.5e6) return file;
+      const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
+      if (scale === 1 && file.size < 1e6) return file;
       const c = document.createElement("canvas");
       c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
       c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
-      const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.85));
+      const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.82));
       return blob && blob.size < file.size ? blob : file;
     } catch { return file; }
   }
   async function uploadFile(file, folder) {
     const limit = folder === "audio" ? 15e6 : 10e6;
     if (file.size > limit) throw new Error(`Tệp quá lớn (tối đa ${limit / 1e6} MB)`);
-    const body = await shrink(file);
+    // Ảnh album: tối đa 1600px (đủ nét cho điện thoại & xem toàn màn hình). Ảnh bìa/khác: 2000px.
+    const body = await shrink(file, folder === "gallery" ? 1600 : 2000);
     const ext = body === file ? (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "") : "jpg";
     const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
     const { error } = await sb.storage.from(BUCKET).upload(path, body, { contentType: body.type || file.type, cacheControl: "31536000", upsert: false });
@@ -450,7 +477,7 @@
       const f = new FormData(e.target), msg = $("#loginMsg");
       msg.textContent = "";
       const { error } = await sb.auth.signInWithPassword({ email: f.get("email"), password: f.get("password") });
-      if (error) { msg.textContent = "Lỗi: " + error.message; console.error(error); return; }
+      if (error) { msg.textContent = "Email hoặc mật khẩu chưa đúng."; return; }
       startApp();
     };
     const { data: s } = await sb.auth.getSession();
