@@ -64,7 +64,7 @@
       { group: "Chú rể", fields: [
         { k: "groom.fullName", label: "Họ tên đầy đủ" }, img("groom.photo", "Ảnh chú rể", "Ảnh vuông sẽ đẹp nhất"),
         { k: "groom.bio", label: "Giới thiệu ngắn", t: "textarea" },
-        { k: "groom.father", label: "Bố" }, { k: "groom.mother", label: "Mẹ" },
+        { k: "groom.father", label: "Tên bố", hint: "Chỉ nhập họ tên, trang tự thêm chữ Ông:" }, { k: "groom.mother", label: "Tên mẹ", hint: "Chỉ nhập họ tên, trang tự thêm chữ Bà:" },
         { k: "groom.address", label: "Địa chỉ nhà trai" }, { k: "groom.phone", label: "Số điện thoại", t: "tel" },
         { k: "groom.zalo", label: "Zalo", hint: "Số điện thoại Zalo hoặc link zalo.me/... Bỏ trống để ẩn nút" },
         { k: "groom.facebook", label: "Link Facebook", hint: "Ví dụ: https://facebook.com/ten.cua.ban" },
@@ -72,11 +72,20 @@
       { group: "Cô dâu", fields: [
         { k: "bride.fullName", label: "Họ tên đầy đủ" }, img("bride.photo", "Ảnh cô dâu", "Ảnh vuông sẽ đẹp nhất"),
         { k: "bride.bio", label: "Giới thiệu ngắn", t: "textarea" },
-        { k: "bride.father", label: "Bố" }, { k: "bride.mother", label: "Mẹ" },
+        { k: "bride.father", label: "Tên bố", hint: "Chỉ nhập họ tên, trang tự thêm chữ Ông:" }, { k: "bride.mother", label: "Tên mẹ", hint: "Chỉ nhập họ tên, trang tự thêm chữ Bà:" },
         { k: "bride.address", label: "Địa chỉ nhà gái" }, { k: "bride.phone", label: "Số điện thoại", t: "tel" },
         { k: "bride.zalo", label: "Zalo", hint: "Số điện thoại Zalo hoặc link zalo.me/... Bỏ trống để ẩn nút" },
         { k: "bride.facebook", label: "Link Facebook", hint: "Ví dụ: https://facebook.com/ten.cua.ban" },
       ]},
+      { k: "groom.helpers", t: "list", label: "Người hỗ trợ nhà trai", addLabel: "Thêm người hỗ trợ", item: [
+        { k: "name", label: "Họ tên" }, { k: "role", label: "Vai trò", hint: "Ví dụ: Anh trai chú rể, Bạn thân cô dâu" },
+        { k: "phone", label: "Số điện thoại", t: "tel" }, { k: "zalo", label: "Zalo", hint: "Số Zalo hoặc link zalo.me. Bỏ trống để ẩn" },
+      ]},
+      { k: "bride.helpers", t: "list", label: "Người hỗ trợ nhà gái", addLabel: "Thêm người hỗ trợ", item: [
+        { k: "name", label: "Họ tên" }, { k: "role", label: "Vai trò", hint: "Ví dụ: Anh trai chú rể, Bạn thân cô dâu" },
+        { k: "phone", label: "Số điện thoại", t: "tel" }, { k: "zalo", label: "Zalo", hint: "Số Zalo hoặc link zalo.me. Bỏ trống để ẩn" },
+      ]},
+
     ]},
     { id: "events", title: "Tiệc & địa điểm", desc: "Các buổi lễ, bản đồ, lịch trình và trang phục gợi ý.", fields: [
       { k: "events", t: "list", label: "Sự kiện", addLabel: "Thêm sự kiện", item: [
