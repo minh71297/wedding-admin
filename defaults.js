@@ -1,6 +1,7 @@
 // Nội dung mặc định. Dữ liệu từ trang admin sẽ ghi đè lên các giá trị này.
 window.WEDDING_DEFAULTS = {
   couple: { groomName: "Quang Minh", brideName: "Ngọc Hân" },
+  cover: { line1: "Trân trọng kính mời", guestDefault: "Bạn và người thương", line2: "tới dự lễ thành hôn của chúng mình" },
   hero: { title: "Chúng mình cưới rồi!", image: "" },
   weddingDate: "2026-12-20T11:00",
   invite: "Trân trọng kính mời bạn đến chung vui cùng gia đình chúng mình trong ngày trọng đại.",

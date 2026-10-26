@@ -49,6 +49,11 @@
         { k: "couple.groomName", label: "Tên chú rể (hiển thị to)" },
         { k: "couple.brideName", label: "Tên cô dâu (hiển thị to)" },
       ]},
+      { group: "Bìa thiệp (màn hình Mở thiệp)", fields: [
+        { k: "cover.line1", label: "Dòng 1 (trên tên khách)", hint: "Ví dụ: Trân trọng kính mời" },
+        { k: "cover.guestDefault", label: "Tên khách mặc định", hint: "Hiện khi mở link chung không có tên khách. Ví dụ: Bạn và người thương" },
+        { k: "cover.line2", label: "Dòng 2 (dưới tên khách)", hint: "Ví dụ: tới dự lễ thành hôn của chúng mình" },
+      ]},
       { group: "Phần đầu trang", fields: [
         { k: "hero.title", label: "Dòng chữ phía trên tên" },
         { k: "weddingDate", label: "Ngày giờ cưới (dùng để đếm ngược)", t: "datetime-local" },
