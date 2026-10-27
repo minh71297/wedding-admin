@@ -146,10 +146,13 @@
         img("decor.contactSticker", "Mục liên hệ"),
         img("decor.footerSticker", "Cuối trang"),
       ]},
-      { group: "Nhạc nền", fields: [
-        { k: "music.url", label: "File nhạc (mp3)", t: "audio", hint: "Nên dưới 3 MB. Khách luôn có nút Bật/Tắt nhạc ở góc phải" },
-        { k: "music.title", label: "Tên bài hát" },
+      { group: "Cài đặt nhạc nền", fields: [
         { k: "music.autoplay", label: "Tự phát nhạc khi khách bấm Mở thiệp", t: "checkbox" },
+        { k: "music.shuffle", label: "Phát ngẫu nhiên thứ tự bài", t: "checkbox" },
+      ]},
+      { k: "music.tracks", t: "list", label: "Danh sách bài hát (phát lần lượt, hết thì quay lại bài đầu)", addLabel: "Thêm bài hát", item: [
+        { k: "title", label: "Tên bài hát" },
+        { k: "url", label: "File nhạc (mp3)", t: "audio", hint: "Mỗi bài nên dưới 3 MB" },
       ]},
     ]},
     { id: "gift", title: "Mừng cưới", desc: "Mã QR và số tài khoản để khách gửi quà mừng.", fields: [
@@ -476,6 +479,11 @@
     const r = await sb.from("site_settings").select("data").eq("id", 1).maybeSingle();
     if (r.error) fail(r.error);
     data = merge(window.WEDDING_DEFAULTS, r.data?.data || {});
+    // Chuyển bài nhạc đơn kiểu cũ sang danh sách bài hát
+    if (data.music?.url && !(data.music.tracks || []).length) {
+      data.music.tracks = [{ title: data.music.title || "Bài 1", url: data.music.url }];
+      data.music.url = ""; data.music.title = ""; markDirty();
+    }
     renderTabs(); renderPanel();
   }
 

@@ -36,7 +36,7 @@ window.WEDDING_DEFAULTS = {
     albumSticker: "", rsvpSticker: "", wishesSticker: "", giftSticker: "", contactSticker: "",
     footerSticker: "", floatSticker: ""
   },
-  music: { url: "", title: "", autoplay: false },
+  music: { url: "", title: "", autoplay: false, shuffle: false, tracks: [] },
   rsvp: { enabled: true, deadline: "Vui lòng xác nhận trước ngày 10/12/2026" },
   thanks: "Cảm ơn bạn rất nhiều vì đã là một phần câu chuyện của chúng mình."
 };
