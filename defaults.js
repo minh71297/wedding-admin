@@ -18,7 +18,6 @@ window.WEDDING_DEFAULTS = {
     { time: "11:30", title: "Khai tiệc" },
     { time: "13:00", title: "Cảm ơn & tiễn khách" }
   ],
-  dressCode: { text: "Mời bạn mặc tông pastel nhẹ nhàng để ảnh chung thật xinh nhé.", colors: "#F7C6D0, #FFE3A3, #CDE7D8, #FFFFFF" },
   story: [
     { date: "2019", title: "Lần đầu gặp nhau", content: "Một buổi chiều mưa ở quán cà phê quen.", image: "" },
     { date: "2023", title: "Lời cầu hôn", content: "Anh run đến mức làm rơi nhẫn hai lần.", image: "" }

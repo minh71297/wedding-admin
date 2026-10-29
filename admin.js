@@ -92,7 +92,7 @@
       ]},
 
     ]},
-    { id: "events", title: "Tiệc & địa điểm", desc: "Các buổi lễ, bản đồ, lịch trình và trang phục gợi ý.", fields: [
+    { id: "events", title: "Tiệc & địa điểm", desc: "Các buổi lễ, bản đồ và lịch trình trong ngày.", fields: [
       { k: "events", t: "list", label: "Sự kiện", addLabel: "Thêm sự kiện", item: [
         { k: "title", label: "Tên sự kiện", hint: "Ví dụ: Lễ Vu Quy, Lễ Thành Hôn, Tiệc Cưới" },
         { k: "time", label: "Ngày giờ", t: "datetime-local" },
@@ -104,10 +104,6 @@
       ]},
       { k: "schedule", t: "list", label: "Lịch trình trong ngày", addLabel: "Thêm mốc giờ", item: [
         { k: "time", label: "Giờ", hint: "Ví dụ: 11:00" }, { k: "title", label: "Hoạt động" },
-      ]},
-      { group: "Trang phục gợi ý", fields: [
-        { k: "dressCode.text", label: "Lời nhắn", t: "textarea" },
-        { k: "dressCode.colors", label: "Mã màu", hint: "Cách nhau bởi dấu phẩy, ví dụ: #F7C6D0, #FFE3A3" },
       ]},
     ]},
     { id: "story", title: "Câu chuyện", desc: "Các cột mốc tình yêu, hiển thị theo thứ tự từ trên xuống.", fields: [
