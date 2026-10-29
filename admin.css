@@ -90,3 +90,11 @@ th{font-size:.85rem;color:var(--ink-soft)}
 .toast.err{background:var(--bad)}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 .grid2 > .media,.grid2 > .media-ctrl{grid-column:1/-1}
+
+/* Căn ảnh */
+.focus-field{display:grid;gap:6px;grid-column:1/-1}
+.focus-row{display:flex;align-items:center;gap:16px}
+.focus-prev{width:110px;height:110px;flex-shrink:0;border-radius:50%;background:var(--bg) center/cover no-repeat;box-shadow:0 0 0 4px #fff, 0 0 0 6px var(--line);display:grid;place-items:center;font-size:.75rem;color:var(--ink-soft);text-align:center}
+.focus-prev.tall{width:96px;height:150px;border-radius:14px}
+.focus-ctrl{flex:1;display:flex;align-items:center;gap:8px}
+.focus-ctrl input[type=range]{flex:1;padding:0;border:0;accent-color:var(--berry)}

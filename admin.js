@@ -58,6 +58,7 @@
         { k: "hero.title", label: "Dòng chữ phía trên tên" },
         { k: "weddingDate", label: "Ngày giờ cưới (dùng để đếm ngược)", t: "datetime-local" },
         img("hero.image", "Ảnh bìa lớn", "Nên dùng ảnh dọc, tỉ lệ 4:5"),
+        { k: "hero.imagePos", label: "Căn ảnh bìa", t: "focus", of: "hero.image", shape: "tall", hint: "Kéo thanh trượt đến khi khung xem trước thấy rõ mặt" },
       ]},
       { group: "Lời nhắn", fields: [
         { k: "invite", label: "Lời mời", t: "textarea" },
@@ -68,6 +69,7 @@
     { id: "couple", title: "Cô dâu & chú rể", desc: "Ảnh, giới thiệu, gia đình. Số điện thoại, Zalo, Facebook hiện ở mục Liên hệ cuối thiệp.", fields: [
       { group: "Chú rể", fields: [
         { k: "groom.fullName", label: "Họ tên đầy đủ" }, img("groom.photo", "Ảnh chú rể", "Ảnh vuông sẽ đẹp nhất"),
+        { k: "groom.photoPos", label: "Căn ảnh chú rể", t: "focus", of: "groom.photo", hint: "Kéo sang trái nếu ảnh bị mất đầu" },
         { k: "groom.bio", label: "Giới thiệu ngắn", t: "textarea" },
         { k: "groom.father", label: "Tên bố", hint: "Chỉ nhập họ tên, trang tự thêm chữ Ông:" }, { k: "groom.mother", label: "Tên mẹ", hint: "Chỉ nhập họ tên, trang tự thêm chữ Bà:" },
         { k: "groom.address", label: "Địa chỉ nhà trai" }, { k: "groom.phone", label: "Số điện thoại", t: "tel" },
@@ -76,6 +78,7 @@
       ]},
       { group: "Cô dâu", fields: [
         { k: "bride.fullName", label: "Họ tên đầy đủ" }, img("bride.photo", "Ảnh cô dâu", "Ảnh vuông sẽ đẹp nhất"),
+        { k: "bride.photoPos", label: "Căn ảnh cô dâu", t: "focus", of: "bride.photo", hint: "Kéo sang trái nếu ảnh bị mất đầu" },
         { k: "bride.bio", label: "Giới thiệu ngắn", t: "textarea" },
         { k: "bride.father", label: "Tên bố", hint: "Chỉ nhập họ tên, trang tự thêm chữ Ông:" }, { k: "bride.mother", label: "Tên mẹ", hint: "Chỉ nhập họ tên, trang tự thêm chữ Bà:" },
         { k: "bride.address", label: "Địa chỉ nhà gái" }, { k: "bride.phone", label: "Số điện thoại", t: "tel" },
@@ -216,6 +219,23 @@
       return el("label", { class: "check" }, box, f.label);
     }
     if (f.t === "image" || f.t === "audio") return mediaEl(f, path, val, hint);
+    if (f.t === "focus") {
+      // Thanh trượt căn ảnh + khung xem trước giống trên trang cưới
+      const prev = el("div", { class: "focus-prev" + (f.shape === "tall" ? " tall" : "") });
+      const range = el("input", { type: "range", min: 0, max: 100, step: 1, "aria-label": f.label });
+      range.value = val ?? (f.shape === "tall" ? 30 : 10);
+      const paint = () => {
+        const u = getP(data, f.of.split("."));
+        prev.style.backgroundImage = u ? `url("${String(u).replace(/"/g, "%22")}")` : "";
+        prev.textContent = u ? "" : "Chưa có ảnh";
+        prev.style.backgroundPosition = `center ${range.value}%`;
+      };
+      range.addEventListener("input", () => { setP(data, path, +range.value); markDirty(); paint(); });
+      document.addEventListener("media-change", paint);
+      paint();
+      return el("div", { class: "focus-field" }, el("strong", {}, f.label), hint,
+        el("div", { class: "focus-row" }, prev, el("div", { class: "focus-ctrl" }, el("span", { class: "hint" }, "Trên"), range, el("span", { class: "hint" }, "Dưới"))));
+    }
 
     const input = f.t === "textarea"
       ? el("textarea", { rows: 3 })
@@ -236,7 +256,7 @@
       if (isAudio) { player.src = u || ""; player.hidden = !u; }
       else { thumb.style.backgroundImage = u ? `url("${u.replace(/"/g, "%22")}")` : ""; thumb.textContent = u ? "" : "Chưa có ảnh"; }
     };
-    const update = (u) => { setP(data, path, u); show(u); markDirty(); };
+    const update = (u) => { setP(data, path, u); show(u); markDirty(); document.dispatchEvent(new Event("media-change")); };
     url.addEventListener("change", () => update(url.value.trim()));
     const upBtn = el("button", { type: "button", class: "btn btn-ghost btn-sm", onclick: () => fileIn.click() }, isAudio ? "Tải nhạc lên" : "Tải ảnh lên");
     fileIn.addEventListener("change", async () => {

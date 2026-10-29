@@ -2,12 +2,12 @@
 window.WEDDING_DEFAULTS = {
   couple: { groomName: "Quang Minh", brideName: "Ngọc Hân" },
   cover: { line1: "Trân trọng kính mời", guestDefault: "Bạn và người thương", line2: "tới dự lễ thành hôn của chúng mình" },
-  hero: { title: "Chúng mình cưới rồi!", image: "" },
+  hero: { title: "Chúng mình cưới rồi!", image: "", imagePos: 30 },
   weddingDate: "2026-12-20T11:00",
   invite: "Trân trọng kính mời bạn đến chung vui cùng gia đình chúng mình trong ngày trọng đại.",
   marquee: "Save the date 20.12.2026\nCảm ơn bạn đã đến chung vui\nDudu ♥ Bubu",
-  groom: { fullName: "Nguyễn Quang Minh", photo: "", bio: "Hay cười, mê cà phê và rất sợ trễ hẹn.", father: "Nguyễn Văn An", mother: "Trần Thị Bình", address: "Cầu Giấy, Hà Nội", phone: "", zalo: "", facebook: "", helpers: [] },
-  bride: { fullName: "Lê Ngọc Hân", photo: "", bio: "Thích nấu ăn, nuôi mèo và chụp ảnh.", father: "Lê Văn Cường", mother: "Phạm Thị Dung", address: "Đống Đa, Hà Nội", phone: "", zalo: "", facebook: "", helpers: [] },
+  groom: { fullName: "Nguyễn Quang Minh", photo: "", photoPos: 10, bio: "Hay cười, mê cà phê và rất sợ trễ hẹn.", father: "Nguyễn Văn An", mother: "Trần Thị Bình", address: "Cầu Giấy, Hà Nội", phone: "", zalo: "", facebook: "", helpers: [] },
+  bride: { fullName: "Lê Ngọc Hân", photo: "", photoPos: 10, bio: "Thích nấu ăn, nuôi mèo và chụp ảnh.", father: "Lê Văn Cường", mother: "Phạm Thị Dung", address: "Đống Đa, Hà Nội", phone: "", zalo: "", facebook: "", helpers: [] },
   events: [
     { title: "Lễ Vu Quy", time: "2026-12-20T08:00", place: "Tư gia nhà gái", address: "Số 1 Phố Ví Dụ, Đống Đa, Hà Nội", mapLink: "", mapEmbed: "", image: "" },
     { title: "Tiệc Cưới", time: "2026-12-20T11:00", place: "Trung tâm tiệc cưới Hoa Hồng", address: "Số 2 Đường Ví Dụ, Cầu Giấy, Hà Nội", mapLink: "", mapEmbed: "", image: "" }
