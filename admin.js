@@ -132,7 +132,6 @@
         img("decor.brideSticker", "Góc ảnh cô dâu"),
       ]},
       { group: "Sticker các mục giữa thiệp", fields: [
-        img("decor.countdownSticker", "Mục đếm ngược"),
         img("decor.eventsSticker", "Mục tiệc cưới & địa điểm"),
         img("decor.scheduleSticker", "Mục lịch trình"),
         img("decor.dividerSticker", "Giữa trang (trước câu chuyện)"),
