@@ -167,6 +167,7 @@
     ]},
     { id: "rsvps", title: "Khách xác nhận", desc: "Danh sách khách đã phản hồi qua form trên trang cưới.", custom: renderRsvps, noSave: true },
     { id: "wishes", title: "Lời chúc", desc: "Ẩn lời chúc không phù hợp hoặc xoá hẳn.", custom: renderWishes, noSave: true },
+    { id: "optimize", title: "Tối ưu ảnh", desc: "Nén lại các ảnh đã tải lên trước đây để thiệp mở nhanh hơn.", custom: renderOptimize, noSave: true },
     { id: "settings", title: "Form xác nhận", desc: "Bật/tắt form RSVP và hạn xác nhận.", fields: [
       { k: "rsvp.enabled", label: "Hiện form xác nhận tham dự", t: "checkbox" },
       { k: "rsvp.deadline", label: "Dòng nhắc hạn xác nhận" },
@@ -181,29 +182,124 @@
   window.addEventListener("beforeunload", (e) => { if (dirty) { e.preventDefault(); e.returnValue = ""; } });
 
   // ---------- Tải tệp lên ----------
-  async function shrink(file, max = 2000) {
-    if (!/^image\/(jpeg|webp)$/.test(file.type) || !window.createImageBitmap) return file;
+  // ---------- Nén ảnh ngay trên trình duyệt trước khi tải lên ----------
+  // Ảnh chụp (kể cả 30–40 MB) → thu về tối đa 1600–2000px, lưu WebP/JPEG chất lượng cao (~200–600 KB).
+  // Sticker → tối đa 600px, giữ nền trong suốt. GIF động giữ nguyên để không mất chuyển động.
+  const webpOK = (() => { try { return document.createElement("canvas").toDataURL("image/webp").startsWith("data:image/webp"); } catch { return false; } })();
+  const loadImg = (blob) => new Promise((res, rej) => {
+    const u = URL.createObjectURL(blob), im = new Image();
+    im.onload = () => res({ im, done: () => URL.revokeObjectURL(u) });
+    im.onerror = () => { URL.revokeObjectURL(u); rej(new Error("Trình duyệt không đọc được ảnh này (ảnh HEIC hãy đổi sang JPG trước)")); };
+    im.src = u;
+  });
+  const hasAlpha = (ctx, w, h) => {
+    const d = ctx.getImageData(0, 0, w, h).data;
+    for (let i = 3; i < d.length; i += 16) if (d[i] < 250) return true;
+    return false;
+  };
+  async function compressImage(blob, kind) {
+    const type = blob.type || "";
+    if (!type.startsWith("image/") || type === "image/gif" || type === "image/svg+xml") return blob;
+    const max = kind === "sticker" ? 600 : kind === "gallery" ? 1600 : 2000;
+    const { im, done } = await loadImg(blob);
     try {
-      const bmp = await createImageBitmap(file);
-      const scale = Math.min(1, max / Math.max(bmp.width, bmp.height));
-      if (scale === 1 && file.size < 1e6) return file;
-      const c = document.createElement("canvas");
-      c.width = Math.round(bmp.width * scale); c.height = Math.round(bmp.height * scale);
-      c.getContext("2d").drawImage(bmp, 0, 0, c.width, c.height);
-      const blob = await new Promise((r) => c.toBlob(r, "image/jpeg", 0.82));
-      return blob && blob.size < file.size ? blob : file;
-    } catch { return file; }
+      let w = im.naturalWidth, h = im.naturalHeight;
+      const scale = Math.min(1, max / Math.max(w, h));
+      const tw = Math.max(1, Math.round(w * scale)), th = Math.max(1, Math.round(h * scale));
+      // Thu nhỏ từng nửa một để ảnh mịn, không răng cưa
+      let src = im, sw = w, sh = h;
+      while (sw / 2 >= tw * 1.05 && sh / 2 >= th * 1.05) {
+        const t = document.createElement("canvas"); t.width = Math.round(sw / 2); t.height = Math.round(sh / 2);
+        const tc = t.getContext("2d"); tc.imageSmoothingQuality = "high"; tc.drawImage(src, 0, 0, t.width, t.height);
+        src = t; sw = t.width; sh = t.height;
+      }
+      const c = document.createElement("canvas"); c.width = tw; c.height = th;
+      const ctx = c.getContext("2d", { willReadFrequently: true }); ctx.imageSmoothingQuality = "high";
+      ctx.drawImage(src, 0, 0, tw, th);
+      const alpha = (type === "image/png" || type === "image/webp") && hasAlpha(ctx, tw, th);
+      const out = webpOK ? "image/webp" : alpha ? "image/png" : "image/jpeg";
+      const q = kind === "sticker" ? 0.88 : 0.82;
+      const res = await new Promise((r) => c.toBlob(r, out, q));
+      return res && (res.size < blob.size || scale < 1) ? res : blob;
+    } finally { done(); }
   }
-  async function uploadFile(file, folder) {
-    const limit = folder === "audio" ? 15e6 : 10e6;
-    if (file.size > limit) throw new Error(`Tệp quá lớn (tối đa ${limit / 1e6} MB)`);
-    // Ảnh album: tối đa 1600px (đủ nét cho điện thoại & xem toàn màn hình). Ảnh bìa/khác: 2000px.
-    const body = await shrink(file, folder === "gallery" ? 1600 : 2000);
-    const ext = body === file ? (file.name.split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "") : "jpg";
-    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  const extOf = (blob, name) => ({ "image/webp": "webp", "image/jpeg": "jpg", "image/png": "png", "image/gif": "gif" }[blob.type])
+    || (String(name || "").split(".").pop() || "bin").toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+
+  async function uploadFile(file, folder, kind) {
+    const isImg = (file.type || "").startsWith("image/");
+    if (file.size > (isImg ? 80e6 : 15e6)) throw new Error(`Tệp quá lớn (tối đa ${isImg ? 80 : 15} MB)`);
+    const body = isImg ? await compressImage(file, kind || (folder === "gallery" ? "gallery" : "photo")) : file;
+    if (body.size > 20e6) throw new Error("Ảnh sau khi nén vẫn quá lớn, hãy thử ảnh khác");
+    if (body.type === "image/gif" && body.size > 1.5e6) toast(`GIF ${(body.size / 1e6).toFixed(1)} MB khá nặng, trang sẽ tải chậm. Nên dùng GIF dưới 1 MB.`, true);
+    const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extOf(body, file.name)}`;
     const { error } = await sb.storage.from(BUCKET).upload(path, body, { contentType: body.type || file.type, cacheControl: "31536000", upsert: false });
     if (error) throw error;
-    return { path, url: sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl };
+    return { path, url: sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl, before: file.size, after: body.size };
+  }
+  const mb = (n) => (n / 1e6 >= 1 ? (n / 1e6).toFixed(1) + " MB" : Math.round(n / 1e3) + " KB");
+
+  // ---------- Tối ưu lại ảnh đã tải lên trước đây ----------
+  async function renderOptimize(panel) {
+    const log = el("div", { class: "opt-log", role: "status" });
+    const btn = el("button", { type: "button", class: "btn btn-primary" }, "Bắt đầu tối ưu");
+    panel.append(el("div", { class: "card" },
+      el("p", {}, "Công cụ này tải lại từng ảnh bạn đã đưa lên (ảnh bìa, ảnh cô dâu chú rể, sticker, câu chuyện, địa điểm, mã QR, album), nén nhỏ những ảnh còn nặng rồi thay bằng bản nhẹ. Ảnh GIF động được giữ nguyên."),
+      el("p", { class: "hint" }, "Nên chạy một lần sau khi cập nhật bản mới. Đừng đóng trang khi đang chạy."), el("div", {}, btn), log));
+    const marker = `/storage/v1/object/public/${BUCKET}/`;
+    const line = (t) => { log.append(el("div", {}, t)); log.scrollTop = log.scrollHeight; };
+    async function optimizeUrl(url, kind) {
+      if (typeof url !== "string" || !url.includes(marker)) return null;
+      const oldPath = decodeURIComponent(url.split(marker)[1].split("?")[0]);
+      const blob = await (await fetch(url, { cache: "no-store" })).blob();
+      if (blob.type === "image/gif" || blob.size < (kind === "sticker" ? 150e3 : 400e3)) return null;
+      const small = await compressImage(blob, kind);
+      if (small.size >= blob.size * 0.85) return null;
+      const folder = oldPath.split("/")[0] || "images";
+      const path = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${extOf(small)}`;
+      const up = await sb.storage.from(BUCKET).upload(path, small, { contentType: small.type, cacheControl: "31536000" });
+      if (up.error) throw up.error;
+      return { url: sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl, path, oldPath, before: blob.size, after: small.size };
+    }
+    btn.onclick = async () => {
+      btn.disabled = true; log.replaceChildren(); let saved = 0, count = 0; const toDelete = [];
+      try {
+        // 1) Ảnh trong nội dung thiệp
+        const jobs = [];
+        const walk = (o, p) => {
+          if (typeof o === "string") { if (o.includes(marker) && /\.(jpe?g|png|webp)(\?|$)/i.test(o)) jobs.push(p); return; }
+          if (o && typeof o === "object") for (const k of Object.keys(o)) walk(o[k], [...p, k]);
+        };
+        walk(data, []);
+        for (const p of jobs) {
+          const kind = p[0] === "decor" ? "sticker" : "photo";
+          line(`Đang xử lý ${p.join(".")}…`);
+          try {
+            const r = await optimizeUrl(getP(data, p), kind);
+            if (r) { setP(data, p, r.url); toDelete.push(r.oldPath); saved += r.before - r.after; count++; line(`✓ ${mb(r.before)} → ${mb(r.after)}`); }
+            else line("– đã nhẹ, bỏ qua");
+          } catch (e) { line("✗ lỗi: " + (e.message || e)); }
+        }
+        if (count) { const { error } = await sb.from("site_settings").upsert({ id: 1, data, updated_at: new Date().toISOString() }); if (error) throw error; dirty = false; $("#savebar").hidden = true; }
+        // 2) Album
+        const g = await sb.from("gallery").select("*");
+        if (g.error) throw g.error;
+        for (const row of g.data) {
+          line(`Đang xử lý ảnh album #${row.id}…`);
+          try {
+            const r = await optimizeUrl(row.url, "gallery");
+            if (!r) { line("– đã nhẹ, bỏ qua"); continue; }
+            const u = await sb.from("gallery").update({ url: r.url, path: r.path }).eq("id", row.id);
+            if (u.error) throw u.error;
+            toDelete.push(r.oldPath); saved += r.before - r.after; count++; line(`✓ ${mb(r.before)} → ${mb(r.after)}`);
+          } catch (e) { line("✗ lỗi: " + (e.message || e)); }
+        }
+        // 3) Xoá bản cũ nặng trong kho
+        if (toDelete.length) await sb.storage.from(BUCKET).remove(toDelete);
+        line(`Xong! Đã tối ưu ${count} ảnh, tiết kiệm ${mb(saved)}.`);
+        toast(`Đã tối ưu ${count} ảnh`);
+      } catch (e) { fail(e); } finally { btn.disabled = false; }
+    };
   }
 
   // ---------- Vẽ các trường nhập ----------
@@ -262,7 +358,12 @@
     fileIn.addEventListener("change", async () => {
       const file = fileIn.files[0]; if (!file) return;
       upBtn.disabled = true; upBtn.textContent = "Đang tải…";
-      try { const r = await uploadFile(file, isAudio ? "audio" : "images"); update(r.url); toast("Đã tải lên. Nhớ bấm Lưu thay đổi."); }
+      upBtn.textContent = isAudio ? "Đang tải…" : "Đang nén ảnh…";
+      try {
+        const r = await uploadFile(file, isAudio ? "audio" : "images", path[0] === "decor" ? "sticker" : "photo");
+        update(r.url);
+        toast(isAudio ? "Đã tải lên. Nhớ bấm Lưu thay đổi." : `Đã tải lên (${mb(r.before)} → ${mb(r.after)}). Nhớ bấm Lưu thay đổi.`);
+      }
       catch (e) { fail(e); }
       finally { upBtn.disabled = false; upBtn.textContent = isAudio ? "Tải nhạc lên" : "Tải ảnh lên"; fileIn.value = ""; }
     });
@@ -333,7 +434,7 @@
   // ---------- Album ----------
   async function renderGallery(panel) {
     const fileIn = el("input", { type: "file", accept: "image/*", multiple: true, hidden: true });
-    const drop = el("div", { class: "dropzone", tabindex: 0, role: "button" }, el("strong", {}, "Kéo thả ảnh vào đây hoặc bấm để chọn"), el("br"), el("span", { class: "hint" }, "Chọn được nhiều ảnh cùng lúc. Ảnh lớn sẽ được tự thu nhỏ."));
+    const drop = el("div", { class: "dropzone", tabindex: 0, role: "button" }, el("strong", {}, "Kéo thả ảnh vào đây hoặc bấm để chọn"), el("br"), el("span", { class: "hint" }, "Chọn được nhiều ảnh cùng lúc, kể cả ảnh gốc 30–40 MB. Ảnh sẽ được tự nén trước khi tải lên."));
     const grid = el("div", { class: "gallery-grid" });
     const status = el("p", { class: "hint", role: "status" });
     panel.append(el("div", { class: "card" }, drop, status, fileIn), grid);
@@ -380,7 +481,7 @@
       for (const f of files) {
         status.textContent = `Đang tải ${done + 1}/${files.length}…`;
         try {
-          const up = await uploadFile(f, "gallery");
+          const up = await uploadFile(f, "gallery", "gallery");
           const r = await sb.from("gallery").insert({ url: up.url, path: up.path, sort_order: order++ }).select().single();
           if (r.error) throw r.error;
           items.push(r.data); done++; draw();
